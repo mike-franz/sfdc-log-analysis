@@ -26,6 +26,11 @@ export class LimitSections {
 
     public appendToOutput(outputText : string[])
     {
+        outputText.push(' ');
+        outputText.push('-----------------------------------------------------------------------------');
+        outputText.push('                           Governer Limit Sections');
+        outputText.push('-----------------------------------------------------------------------------');
+
         for(let i = 0; i < this.sectionText.length; i++)
         {
             outputText.push('Limit Section: ' + this.sectionNames[i]);

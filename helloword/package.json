@@ -1,7 +1,7 @@
 {
-	"name": "helloword",
-	"displayName": "HelloWord",
-	"description": "Says Hello World",
+	"name": "sfdcloganalysis",
+	"displayName": "SFDC Log Analysis",
+	"description": "Analyze your SFDC debug logs",
 	"version": "0.0.1",
 	"engines": {
 		"vscode": "^1.46.0"
@@ -10,14 +10,14 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:helloword.helloWorld"
+		"onCommand:sfdcloganalysis.fullanalysis"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "helloword.helloWorld",
-				"title": "Hello World"
+				"command": "sfdcloganalysis.fullanalysis",
+				"title": "SFDC Log Analysis: Full Analysis"
 			}
 		]
 	},

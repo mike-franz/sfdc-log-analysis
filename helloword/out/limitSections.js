@@ -17,6 +17,10 @@ class LimitSections {
         this.sectionText[sectionIndex] = sectionText;
     }
     appendToOutput(outputText) {
+        outputText.push(' ');
+        outputText.push('-----------------------------------------------------------------------------');
+        outputText.push('                           Governer Limit Sections');
+        outputText.push('-----------------------------------------------------------------------------');
         for (let i = 0; i < this.sectionText.length; i++) {
             outputText.push('Limit Section: ' + this.sectionNames[i]);
             for (let j = 0; j < this.sectionText[i].length; j++) {

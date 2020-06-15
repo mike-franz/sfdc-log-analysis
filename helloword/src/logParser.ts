@@ -1,29 +1,23 @@
 import * as vscode from 'vscode';
-import { stack } from './stack';
+
 import { LimitSections } from './limitSections';
+import { Callstack } from './callstack';
 
 export class LogParser {
 
     constructor() {
-        
-        this.callStack = new stack();
-        this.callStackOutputText = [];
-        this.headerOutputText = [];
-
+    
         this.limitSections = new LimitSections();
+        this.callstack = new Callstack();
+
         this.isLimitSection = false;
         this.currentLimitSectionName = '';
         this.currentLimitSectionText = [];
-
-        this.buildHeader();
     }
 
-    private headerOutputText: string[];
-    private callStackOutputText: string[];
-
-    private callStack : stack;
-
     private limitSections : LimitSections;
+    private callstack : Callstack;
+
     private isLimitSection : boolean;
     private currentLimitSectionName : string;
     private currentLimitSectionText : string[];
@@ -32,7 +26,7 @@ export class LogParser {
      * name
      */
     public parse(document: vscode.TextDocument) {
-        console.log('parsing');
+
         for(var lineNumber = 0; lineNumber < document.lineCount; lineNumber++)
         {
             let lineText = document.lineAt(lineNumber);
@@ -64,11 +58,11 @@ export class LogParser {
         {
             case "CODE_UNIT_STARTED":
             case "METHOD_ENTRY":
-                this.processStarted(lineSplit);
+                this.callstack.processStarted(lineSplit);
                 break;
             case "CODE_UNIT_FINISHED":
             case "METHOD_EXIT":
-                this.processExit();
+                this.callstack.processExit();
                 break;
             case "LIMIT_USAGE_FOR_NS":
                 this.startLimitSection(lineNumber,lineSplit);
@@ -82,17 +76,9 @@ export class LogParser {
     {
         let outputText : string[] = [];
 
-        for(let i = 0; i < this.headerOutputText.length; i++)
-        {
-            outputText[outputText.length] = this.headerOutputText[i];
-        }
-
-        for(let i = 0; i < this.callStackOutputText.length; i++)
-        {
-            outputText[outputText.length] = this.callStackOutputText[i];
-        }
-
         outputText = this.limitSections.appendToOutput(outputText);
+
+        outputText = this.callstack.appendToOutput(outputText);
 
         var setting: vscode.Uri = vscode.Uri.parse("untitled:" + "C:\LogAnalysis.txt");
         vscode.workspace.openTextDocument(setting).then((a: vscode.TextDocument) => {
@@ -141,43 +127,4 @@ export class LogParser {
         this.currentLimitSectionText[this.currentLimitSectionText.length] = lineText;
     }
 
-    private processStarted(lineSplit : string[])
-    {
-        if(lineSplit.length < 5)
-        {
-            console.debug('Invalid Code Unit Line');
-            return;
-        }
-
-        let scopeName = lineSplit[4];
-        let scopeWithTabs = '';
-
-        const stackSize = this.callStack.length();
-        for(let index = 0; index < stackSize; index++)
-        {
-            scopeWithTabs += '\t';
-        }
-
-        scopeWithTabs += scopeName;
-
-        this.callStackOutputText[this.callStackOutputText.length] = scopeWithTabs;
-        this.callStack.push(scopeName);
-    }
-
-    private processExit()
-    {
-        if(!this.callStack.hasData())
-        {
-            return;
-        }
-
-        this.callStack.pop();
-    }
-
-    private buildHeader()
-    {
-        this.headerOutputText[this.headerOutputText.length] = '-----------------------------------------------------------------------------';
-        this.headerOutputText[this.headerOutputText.length] = '                                    Callstack';
-        this.headerOutputText[this.headerOutputText.length] = '-----------------------------------------------------------------------------';
-    }
 }

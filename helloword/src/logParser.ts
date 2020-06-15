@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { stack } from './stack';
+import { LimitSections } from './limitSections';
 
 export class LogParser {
 
@@ -9,6 +10,11 @@ export class LogParser {
         this.callStackOutputText = [];
         this.headerOutputText = [];
 
+        this.limitSections = new LimitSections();
+        this.isLimitSection = false;
+        this.currentLimitSectionName = '';
+        this.currentLimitSectionText = [];
+
         this.buildHeader();
     }
 
@@ -16,6 +22,11 @@ export class LogParser {
     private callStackOutputText: string[];
 
     private callStack : stack;
+
+    private limitSections : LimitSections;
+    private isLimitSection : boolean;
+    private currentLimitSectionName : string;
+    private currentLimitSectionText : string[];
 
     /**
      * name
@@ -25,14 +36,21 @@ export class LogParser {
         for(var lineNumber = 0; lineNumber < document.lineCount; lineNumber++)
         {
             let lineText = document.lineAt(lineNumber);
-            this.processLine(lineText.text);
+            this.processLine(lineNumber,lineText.text);
         }
 
         this.displayOutput();
     }
 
-    private processLine(lineText : string)
+    private processLine(lineNumber : number, lineText : string)
     {
+        //Limit sections do not have a starting timestamp or pipe delimitor
+        if(this.isLimitSection)
+        {
+            this.processLimitSection(lineNumber, lineText);
+            return;
+        }
+
         let lineSplit = lineText.split('|');
 
         if(lineSplit.length < 2)
@@ -52,7 +70,12 @@ export class LogParser {
             case "METHOD_EXIT":
                 this.processExit();
                 break;
+            case "LIMIT_USAGE_FOR_NS":
+                this.startLimitSection(lineNumber,lineSplit);
+                break;
         }
+
+        return lineNumber;
     }
 
     private displayOutput()
@@ -68,6 +91,8 @@ export class LogParser {
         {
             outputText[outputText.length] = this.callStackOutputText[i];
         }
+
+        outputText = this.limitSections.appendToOutput(outputText);
 
         var setting: vscode.Uri = vscode.Uri.parse("untitled:" + "C:\LogAnalysis.txt");
         vscode.workspace.openTextDocument(setting).then((a: vscode.TextDocument) => {
@@ -85,6 +110,35 @@ export class LogParser {
             console.error(error);
             debugger;
         });
+    }
+
+    
+
+    private startLimitSection(lineNumber : number, lineSplit : string[])
+    {
+        if(lineSplit.length < 3)
+        {
+            console.error('Line ' + lineNumber + ': Invalid limit section start');
+            return;
+        }
+
+        this.currentLimitSectionName = lineSplit[2];
+        this.currentLimitSectionText = [];
+        this.isLimitSection = true;
+    }
+
+    private processLimitSection(lineNumber : number, lineText : string)
+    {
+        //Limit sections have a empty line before the next log line
+        if(lineText.trim() === '')
+        {
+            this.isLimitSection = false;
+            this.limitSections.upsertSection(this.currentLimitSectionName,this.currentLimitSectionText);
+
+            return;
+        }
+
+        this.currentLimitSectionText[this.currentLimitSectionText.length] = lineText;
     }
 
     private processStarted(lineSplit : string[])

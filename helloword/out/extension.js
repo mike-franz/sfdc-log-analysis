@@ -36,8 +36,6 @@ function activate(context) {
     context.subscriptions.push(disposable);
 }
 exports.activate = activate;
-function ParseLog(document) {
-}
 // this method is called when your extension is deactivated
 function deactivate() { }
 exports.deactivate = deactivate;

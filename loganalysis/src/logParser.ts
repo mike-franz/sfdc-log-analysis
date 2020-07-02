@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 
 import { LimitSections } from './limitSections';
 import { Callstack } from './callstack';
+import { SoqlCalls } from './soqlCalls';
 
 export class LogParser {
 
@@ -9,6 +10,7 @@ export class LogParser {
     
         this.limitSections = new LimitSections();
         this.callstack = new Callstack();
+        this.soqlCalls = new SoqlCalls();
 
         this.isLimitSection = false;
         this.currentLimitSectionName = '';
@@ -17,6 +19,7 @@ export class LogParser {
 
     private limitSections : LimitSections;
     private callstack : Callstack;
+    private soqlCalls : SoqlCalls;
 
     private isLimitSection : boolean;
     private currentLimitSectionName : string;
@@ -58,7 +61,7 @@ export class LogParser {
         {
             case "CODE_UNIT_STARTED":
             case "METHOD_ENTRY":
-                this.callstack.processStarted(lineSplit);
+                this.callstack.processStarted(lineNumber,lineSplit);
                 break;
             case "CODE_UNIT_FINISHED":
             case "METHOD_EXIT":
@@ -66,6 +69,12 @@ export class LogParser {
                 break;
             case "LIMIT_USAGE_FOR_NS":
                 this.startLimitSection(lineNumber,lineSplit);
+                break;
+            case "SOQL_EXECUTE_BEGIN":
+                this.soqlCalls.callBegin(lineNumber,lineSplit);
+                break;
+            case "SOQL_EXECUTE_END":
+                this.soqlCalls.callEnd(lineNumber,lineSplit);
                 break;
         }
 
@@ -77,6 +86,8 @@ export class LogParser {
         let outputText : string[] = [];
 
         outputText = this.limitSections.appendToOutput(outputText);
+
+        outputText = this.soqlCalls.appendToOutput(outputText);
 
         outputText = this.callstack.appendToOutput(outputText);
 

@@ -11,7 +11,7 @@ export class Callstack {
     private callStackOutputText: string[];
     private callStack : stack;
 
-    public processStarted(lineSplit : string[])
+    public processStarted(lineNumber : number, lineSplit : string[])
     {
         let scopeName : string = '';
         if(lineSplit.length === 4)
@@ -24,7 +24,7 @@ export class Callstack {
         }
         else
         {
-            console.debug('Invalid Code Unit Line');
+            console.debug('Invalid Code Unit Line: '  + lineNumber);
             return;
         }
 

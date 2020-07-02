@@ -7,7 +7,7 @@ class Callstack {
         this.callStack = new stack_1.stack();
         this.callStackOutputText = [];
     }
-    processStarted(lineSplit) {
+    processStarted(lineNumber, lineSplit) {
         let scopeName = '';
         if (lineSplit.length === 4) {
             scopeName = lineSplit[3];
@@ -16,7 +16,7 @@ class Callstack {
             scopeName = lineSplit[4];
         }
         else {
-            console.debug('Invalid Code Unit Line');
+            console.debug('Invalid Code Unit Line: ' + lineNumber);
             return;
         }
         let scopeWithTabs = '';

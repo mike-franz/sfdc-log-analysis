@@ -4,10 +4,12 @@ exports.LogParser = void 0;
 const vscode = require("vscode");
 const limitSections_1 = require("./limitSections");
 const callstack_1 = require("./callstack");
+const soqlCalls_1 = require("./soqlCalls");
 class LogParser {
     constructor() {
         this.limitSections = new limitSections_1.LimitSections();
         this.callstack = new callstack_1.Callstack();
+        this.soqlCalls = new soqlCalls_1.SoqlCalls();
         this.isLimitSection = false;
         this.currentLimitSectionName = '';
         this.currentLimitSectionText = [];
@@ -36,7 +38,7 @@ class LogParser {
         switch (command) {
             case "CODE_UNIT_STARTED":
             case "METHOD_ENTRY":
-                this.callstack.processStarted(lineSplit);
+                this.callstack.processStarted(lineNumber, lineSplit);
                 break;
             case "CODE_UNIT_FINISHED":
             case "METHOD_EXIT":
@@ -45,12 +47,19 @@ class LogParser {
             case "LIMIT_USAGE_FOR_NS":
                 this.startLimitSection(lineNumber, lineSplit);
                 break;
+            case "SOQL_EXECUTE_BEGIN":
+                this.soqlCalls.callBegin(lineNumber, lineSplit);
+                break;
+            case "SOQL_EXECUTE_END":
+                this.soqlCalls.callEnd(lineNumber, lineSplit);
+                break;
         }
         return lineNumber;
     }
     displayOutput() {
         let outputText = [];
         outputText = this.limitSections.appendToOutput(outputText);
+        outputText = this.soqlCalls.appendToOutput(outputText);
         outputText = this.callstack.appendToOutput(outputText);
         var setting = vscode.Uri.parse("untitled:" + "C:\LogAnalysis.txt");
         vscode.workspace.openTextDocument(setting).then((a) => {

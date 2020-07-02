@@ -23,7 +23,7 @@ export class SoqlCalls {
         this.callText = lineSplit[4];
     }
 
-    public callEnd(lineNumber : number, lineSplit : string[])
+    public callEnd(lineNumber : number, lineSplit : string[], currentContext : string)
     {
         if(lineSplit.length != 4)
         {
@@ -37,18 +37,24 @@ export class SoqlCalls {
         {
             if(this.calls[index] === this.callText)
             {
-                this.callDetails[index].updateDetails(endDetails);
+                this.callDetails[index].updateDetails(endDetails,currentContext);
 
                 return;
             }
         }
 
         this.calls.push(this.callText);
-        this.callDetails.push(new soqlCallDetails(endDetails));
+        this.callDetails.push(new soqlCallDetails(endDetails,currentContext));
     }
 
     public appendToOutput(outputText : string[])
     {
+        //Don't output this section if there are no SOQL calls
+        if(this.calls.length == 0)
+        {
+            return outputText;
+        }
+
         outputText.push(' ');
         outputText.push('-----------------------------------------------------------------------------');
         outputText.push('                          SOQL Limits Sections');
@@ -74,13 +80,13 @@ class soqlCallDetails {
 
     public details : string[];
 
-    constructor(details : string) {
+    constructor(details : string, context : string) {
        this.details = new Array();
-       this.details.push(details);
+       this.details.push('Context: ' + context + ' Details: ' + details);
     }
 
-    public updateDetails(details : string)
+    public updateDetails(details : string, context : string)
     {
-        this.details.push(details);
+        this.details.push('Context: ' + context + ' Details: ' + details);
     }
 }

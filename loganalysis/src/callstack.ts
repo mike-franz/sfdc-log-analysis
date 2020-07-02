@@ -42,6 +42,18 @@ export class Callstack {
         this.callStack.push(scopeName);
     }
 
+    public currentContext()
+    {
+        let context = this.callStack.peek();
+        if(context === null)
+        {
+            console.log('Callstack is empty');
+            return '';
+        }
+
+        return context;
+    }
+
     public processExit()
     {
         if(!this.callStack.hasData())

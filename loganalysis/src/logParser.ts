@@ -74,7 +74,7 @@ export class LogParser {
                 this.soqlCalls.callBegin(lineNumber,lineSplit);
                 break;
             case "SOQL_EXECUTE_END":
-                this.soqlCalls.callEnd(lineNumber,lineSplit);
+                this.soqlCalls.callEnd(lineNumber,lineSplit, this.callstack.currentContext());
                 break;
         }
 

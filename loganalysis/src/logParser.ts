@@ -105,7 +105,7 @@ export class LogParser {
 
         outputText = this.callstack.appendToOutput(outputText);
 
-        var setting: vscode.Uri = vscode.Uri.parse("untitled:" + "C:\LogAnalysis_" + Date.now() + ".txt");
+        var setting: vscode.Uri = vscode.Uri.parse("untitled:" + "LogAnalysis_" + Date.now() + ".txt");
         vscode.workspace.openTextDocument(setting).then((a: vscode.TextDocument) => {
             vscode.window.showTextDocument(a, 1, false).then(e => {
                 e.edit(edit => {

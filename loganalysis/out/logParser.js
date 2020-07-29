@@ -72,7 +72,7 @@ class LogParser {
         outputText = this.limitSections.appendToOutput(outputText);
         outputText = this.soqlCalls.appendToOutput(outputText);
         outputText = this.callstack.appendToOutput(outputText);
-        var setting = vscode.Uri.parse("untitled:" + "C:\LogAnalysis_" + Date.now() + ".txt");
+        var setting = vscode.Uri.parse("untitled:" + "LogAnalysis_" + Date.now() + ".txt");
         vscode.workspace.openTextDocument(setting).then((a) => {
             vscode.window.showTextDocument(a, 1, false).then(e => {
                 e.edit(edit => {

@@ -26,6 +26,7 @@ class LimitSections {
             for (let j = 0; j < this.sectionText[i].length; j++) {
                 outputText.push(this.sectionText[i][j]);
             }
+            outputText.push(' ');
         }
         return outputText;
     }

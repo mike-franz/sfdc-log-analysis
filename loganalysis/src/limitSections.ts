@@ -38,6 +38,8 @@ export class LimitSections {
             {
                 outputText.push(this.sectionText[i][j]);
             }
+
+            outputText.push(' ');
         }
 
         return outputText;

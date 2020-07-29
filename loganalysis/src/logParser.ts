@@ -13,6 +13,8 @@ export class LogParser {
         this.soqlCalls = new SoqlCalls();
 
         this.isLimitSection = false;
+        this.isInCumulativeLimitSection = false;
+        this.fatalErrorOccurred = false;
         this.currentLimitSectionName = '';
         this.currentLimitSectionText = [];
     }
@@ -22,8 +24,11 @@ export class LogParser {
     private soqlCalls : SoqlCalls;
 
     private isLimitSection : boolean;
+    private isInCumulativeLimitSection: boolean;
+    private fatalErrorOccurred: boolean;
     private currentLimitSectionName : string;
     private currentLimitSectionText : string[];
+
 
     /**
      * name
@@ -67,6 +72,12 @@ export class LogParser {
             case "METHOD_EXIT":
                 this.callstack.processExit();
                 break;
+            case "CUMULATIVE_LIMIT_USAGE":
+                this.isInCumulativeLimitSection = true;
+                break;
+            case "CUMULATIVE_LIMIT_USAGE_END":
+                this.isInCumulativeLimitSection = false;
+                break;
             case "LIMIT_USAGE_FOR_NS":
                 this.startLimitSection(lineNumber,lineSplit);
                 break;
@@ -75,6 +86,9 @@ export class LogParser {
                 break;
             case "SOQL_EXECUTE_END":
                 this.soqlCalls.callEnd(lineNumber,lineSplit, this.callstack.currentContext());
+                break;
+            case "FATAL_ERROR":
+                this.fatalErrorOccurred = true;
                 break;
         }
 
@@ -91,7 +105,7 @@ export class LogParser {
 
         outputText = this.callstack.appendToOutput(outputText);
 
-        var setting: vscode.Uri = vscode.Uri.parse("untitled:" + "C:\LogAnalysis.txt");
+        var setting: vscode.Uri = vscode.Uri.parse("untitled:" + "C:\LogAnalysis_" + Date.now() + ".txt");
         vscode.workspace.openTextDocument(setting).then((a: vscode.TextDocument) => {
             vscode.window.showTextDocument(a, 1, false).then(e => {
                 e.edit(edit => {
@@ -126,6 +140,11 @@ export class LogParser {
 
     private processLimitSection(lineNumber : number, lineText : string)
     {
+        if(this.isInCumulativeLimitSection == false || this.fatalErrorOccurred)
+        {
+            return;
+        }
+
         //Limit sections have a empty line before the next log line
         if(lineText.trim() === '')
         {

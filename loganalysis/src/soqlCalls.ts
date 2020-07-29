@@ -70,6 +70,8 @@ export class SoqlCalls {
             {
                 outputText.push('       ' + this.callDetails[i].details[j]);
             }
+
+            outputText.push(' ');
         }
 
         return outputText;

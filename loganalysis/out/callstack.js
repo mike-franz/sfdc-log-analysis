@@ -28,6 +28,14 @@ class Callstack {
         this.callStackOutputText[this.callStackOutputText.length] = scopeWithTabs;
         this.callStack.push(scopeName);
     }
+    currentContext() {
+        let context = this.callStack.peek();
+        if (context === null) {
+            console.log('Callstack is empty');
+            return '';
+        }
+        return context;
+    }
     processExit() {
         if (!this.callStack.hasData()) {
             return;

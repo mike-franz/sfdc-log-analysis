@@ -14,7 +14,7 @@ class SoqlCalls {
         }
         this.callText = lineSplit[4];
     }
-    callEnd(lineNumber, lineSplit) {
+    callEnd(lineNumber, lineSplit, currentContext) {
         if (lineSplit.length != 4) {
             console.log('Invalid SOQL line at ' + lineNumber);
             return;
@@ -22,14 +22,18 @@ class SoqlCalls {
         let endDetails = lineSplit[3];
         for (let index = 0; index < this.calls.length; index++) {
             if (this.calls[index] === this.callText) {
-                this.callDetails[index].updateDetails(endDetails);
+                this.callDetails[index].updateDetails(endDetails, currentContext);
                 return;
             }
         }
         this.calls.push(this.callText);
-        this.callDetails.push(new soqlCallDetails(endDetails));
+        this.callDetails.push(new soqlCallDetails(endDetails, currentContext));
     }
     appendToOutput(outputText) {
+        //Don't output this section if there are no SOQL calls
+        if (this.calls.length == 0) {
+            return outputText;
+        }
         outputText.push(' ');
         outputText.push('-----------------------------------------------------------------------------');
         outputText.push('                          SOQL Limits Sections');
@@ -41,18 +45,19 @@ class SoqlCalls {
             for (let j = 0; j < this.callDetails[i].details.length; j++) {
                 outputText.push('       ' + this.callDetails[i].details[j]);
             }
+            outputText.push(' ');
         }
         return outputText;
     }
 }
 exports.SoqlCalls = SoqlCalls;
 class soqlCallDetails {
-    constructor(details) {
+    constructor(details, context) {
         this.details = new Array();
-        this.details.push(details);
+        this.details.push('Context: ' + context + ' Details: ' + details);
     }
-    updateDetails(details) {
-        this.details.push(details);
+    updateDetails(details, context) {
+        this.details.push('Context: ' + context + ' Details: ' + details);
     }
 }
 //# sourceMappingURL=soqlCalls.js.map
